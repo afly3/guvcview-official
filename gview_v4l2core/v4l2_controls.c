@@ -517,7 +517,7 @@ static v4l2_ctrl_t *add_control(v4l2_dev_t *vd, struct v4l2_queryctrl* queryctrl
 		exit(-1);
 	}
     memcpy(&(control->control), queryctrl, sizeof(struct v4l2_queryctrl));
-    control->class = V4L2_CTRL_ID2CLASS(control->control.id);
+    control->v4l2_class = V4L2_CTRL_ID2CLASS(control->control.id);
     control->name = strdup(dgettext(GETTEXT_PACKAGE_V4L2CORE, control->control.name));
     //add the menu adress (NULL if not a menu)
     control->menu = menu;
@@ -955,10 +955,10 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
 #endif
         count++;
 
-        if((current->next == NULL) || (current->next->class != current->class))
+        if((current->next == NULL) || (current->next->v4l2_class != current->v4l2_class))
         {
             struct v4l2_ext_controls ctrls = {0};
-            ctrls.ctrl_class = current->class;
+            ctrls.ctrl_class = current->v4l2_class;
             ctrls.count = count;
             ctrls.controls = clist;
             ret = xioctl(vd->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
@@ -967,7 +967,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                 fprintf(stderr, "V4L2_CORE: (VIDIOC_G_EXT_CTRLS) failed\n");
                 struct v4l2_control ctrl;
                 /*get the controls one by one*/
-                if( current->class == V4L2_CTRL_CLASS_USER
+                if( current->v4l2_class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
 #endif
@@ -990,7 +990,7 @@ void get_v4l2_control_values (v4l2_dev_t *vd)
                 else
                 {
                     fprintf(stderr, "V4L2_CORE: using VIDIOC_G_EXT_CTRLS on single controls for class: 0x%08x\n",
-                        current->class);
+                        current->v4l2_class);
                     for(i=0;i < count; i++)
                     {
                         ctrls.count = 1;
@@ -1112,7 +1112,7 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
     if(control->control.flags & V4L2_CTRL_FLAG_WRITE_ONLY)
         return (-1);
 
-    if( control->class == V4L2_CTRL_CLASS_USER
+    if( control->v4l2_class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING
 		&& control->control.type != V4L2_CTRL_TYPE_STRING
 #endif
@@ -1149,7 +1149,7 @@ int get_control_value_by_id (v4l2_dev_t *vd, int id)
 			}
         }
 #endif
-        ctrls.ctrl_class = control->class;
+        ctrls.ctrl_class = control->v4l2_class;
         ctrls.count = 1;
         ctrls.controls = &ctrl;
         ret = xioctl(vd->fd, VIDIOC_G_EXT_CTRLS, &ctrls);
@@ -1283,10 +1283,10 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
         }
         count++;
 
-        if((current->next == NULL) || (current->next->class != current->class))
+        if((current->next == NULL) || (current->next->v4l2_class != current->v4l2_class))
         {
             struct v4l2_ext_controls ctrls = {0};
-            ctrls.ctrl_class = current->class;
+            ctrls.ctrl_class = current->v4l2_class;
             ctrls.count = count;
             ctrls.controls = clist;
             ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);
@@ -1295,7 +1295,7 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                 fprintf(stderr, "V4L2_CORE: VIDIOC_S_EXT_CTRLS for multiple controls failed (error %i)\n", ret);
                 struct v4l2_control ctrl;
                 /*set the controls one by one*/
-                if( current->class == V4L2_CTRL_CLASS_USER
+                if( current->v4l2_class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING
 					&& current->control.type != V4L2_CTRL_TYPE_STRING
 #endif
@@ -1325,7 +1325,7 @@ void set_v4l2_control_values (v4l2_dev_t *vd)
                 else
                 {
                     fprintf(stderr, "V4L2_CORE: using VIDIOC_S_EXT_CTRLS on single controls for class: 0x%08x\n",
-                        current->class);
+                        current->v4l2_class);
                     for(i=0;i < count; i++)
                     {
                         ctrls.count = 1;
@@ -1459,7 +1459,7 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
 
 		
 
-    if( control->class == V4L2_CTRL_CLASS_USER
+    if( control->v4l2_class == V4L2_CTRL_CLASS_USER
 #ifdef V4L2_CTRL_TYPE_STRING
     && control->control.type != V4L2_CTRL_TYPE_STRING
 #endif
@@ -1516,7 +1516,7 @@ int set_control_value_by_id(v4l2_dev_t *vd, int id)
                 ctrl.value = control->value;
                 break;
         }
-        ctrls.ctrl_class = control->class;
+        ctrls.ctrl_class = control->v4l2_class;
         ctrls.count = 1;
         ctrls.controls = &ctrl;
         ret = xioctl(vd->fd, VIDIOC_S_EXT_CTRLS, &ctrls);

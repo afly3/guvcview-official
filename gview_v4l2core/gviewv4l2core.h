@@ -222,7 +222,7 @@ typedef struct _v4l2_ctrl_t
 {
     struct v4l2_queryctrl control;
     struct v4l2_querymenu *menu;
-    int32_t class;
+    int32_t v4l2_class;
     int32_t value; //also used for string max size
     int64_t value64;
     char *string;
